@@ -1,64 +1,99 @@
 {
-  "db_name": "PostgreSQL",
+  "db_name": "SQLite",
   "query": "SELECT id, ptype, v0, v1, v2, v3, v4, v5 from  casbin_rule WHERE (\n            ptype LIKE 'g%' AND v0 LIKE $1 AND v1 LIKE $2 AND v2 LIKE $3 AND v3 LIKE $4 AND v4 LIKE $5 AND v5 LIKE $6 )\n        OR (\n            ptype LIKE 'p%' AND v0 LIKE $7 AND v1 LIKE $8 AND v2 LIKE $9 AND v3 LIKE $10 AND v4 LIKE $11 AND v5 LIKE $12 );\n            ",
   "describe": {
     "columns": [
       {
-        "ordinal": 0,
         "name": "id",
-        "type_info": "Int4"
+        "ordinal": 0,
+        "type_info": "Integer",
+        "origin": {
+          "Table": {
+            "table": "casbin_rule",
+            "name": "id"
+          }
+        }
       },
       {
-        "ordinal": 1,
         "name": "ptype",
-        "type_info": "Varchar"
+        "ordinal": 1,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "casbin_rule",
+            "name": "ptype"
+          }
+        }
       },
       {
-        "ordinal": 2,
         "name": "v0",
-        "type_info": "Varchar"
+        "ordinal": 2,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "casbin_rule",
+            "name": "v0"
+          }
+        }
       },
       {
-        "ordinal": 3,
         "name": "v1",
-        "type_info": "Varchar"
+        "ordinal": 3,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "casbin_rule",
+            "name": "v1"
+          }
+        }
       },
       {
-        "ordinal": 4,
         "name": "v2",
-        "type_info": "Varchar"
+        "ordinal": 4,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "casbin_rule",
+            "name": "v2"
+          }
+        }
       },
       {
-        "ordinal": 5,
         "name": "v3",
-        "type_info": "Varchar"
+        "ordinal": 5,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "casbin_rule",
+            "name": "v3"
+          }
+        }
       },
       {
-        "ordinal": 6,
         "name": "v4",
-        "type_info": "Varchar"
+        "ordinal": 6,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "casbin_rule",
+            "name": "v4"
+          }
+        }
       },
       {
-        "ordinal": 7,
         "name": "v5",
-        "type_info": "Varchar"
+        "ordinal": 7,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "casbin_rule",
+            "name": "v5"
+          }
+        }
       }
     ],
     "parameters": {
-      "Left": [
-        "Text",
-        "Text",
-        "Text",
-        "Text",
-        "Text",
-        "Text",
-        "Text",
-        "Text",
-        "Text",
-        "Text",
-        "Text",
-        "Text"
-      ]
+      "Right": 12
     },
     "nullable": [
       false,

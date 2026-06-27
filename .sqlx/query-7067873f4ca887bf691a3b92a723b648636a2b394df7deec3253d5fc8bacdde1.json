@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM casbin_rule WHERE\n                    ptype = ?1 AND\n                    v0 = ?2 AND\n                    v1 = ?3 AND\n                    v2 = ?4 AND\n                    v3 = ?5 AND\n                    v4 = ?6 AND\n                    v5 = ?7",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 7
+    },
+    "nullable": []
+  },
+  "hash": "7067873f4ca887bf691a3b92a723b648636a2b394df7deec3253d5fc8bacdde1"
+}

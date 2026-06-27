@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "DELETE FROM casbin_rule WHERE\n                    ptype = $1 AND\n                    (v5 is NULL OR v5 = COALESCE(?2,v5))",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "dc8abb55cf0b35edab2a568a287c7eed460ca39ffb72076a3b8445c42ee21e00"
+}

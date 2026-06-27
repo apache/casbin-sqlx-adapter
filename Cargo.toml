@@ -9,8 +9,8 @@ homepage= "https://casbin.apache.org"
 readme= "README.md"
 
 [dependencies]
-casbin = { version = "2.1.0", default-features = false }
-sqlx = { version = "0.8", default-features = false, features = [ "macros" ] }
+casbin = { version = "2.20.0", default-features = false }
+sqlx = { version = "0.9", default-features = false, features = [ "macros" ,"runtime-async-std","tls-native-tls" ] }
 async-trait = "0.1.51"
 dotenvy = { version = "0.15.0", default-features = false }
 tokio = { version = "1.10.0", default-features = false, optional = true }
@@ -26,16 +26,16 @@ sqlite = ["sqlx/sqlite"]
 
 # async runtime
 # async-std
-runtime-async-std-native-tls = ["casbin/runtime-async-std", "sqlx/runtime-async-std-native-tls"]
-runtime-async-std-rustls = ["casbin/runtime-async-std", "sqlx/runtime-async-std-rustls"]
+runtime-async-std-native-tls = ["casbin/runtime-async-std", "sqlx/runtime-async-std"]
+runtime-async-std-rustls = ["casbin/runtime-async-std", "sqlx/tls-rustls"]
 # tokio
 runtime-tokio = ["casbin/runtime-tokio", "sqlx/runtime-tokio"]
-runtime-tokio-native-tls = ["casbin/runtime-tokio", "sqlx/runtime-tokio-native-tls"]
-runtime-tokio-rustls = ["casbin/runtime-tokio", "sqlx/runtime-tokio-rustls"]
+runtime-tokio-native-tls = ["casbin/runtime-tokio", "sqlx/tls-native-tls"]
+runtime-tokio-rustls = ["casbin/runtime-tokio", "sqlx/tls-native-tls"]
 
 [dev-dependencies]
-async-std = { version = "1.9.0", features = [ "attributes" ] }
-tokio = { version = "1.10.0", features = [ "full" ] }
+async-std = { version = "1.13.2", features = [ "attributes" ] }
+tokio = { version = "1.52.3", features = [ "full" ] }
 
 [profile.release]
 codegen-units = 1

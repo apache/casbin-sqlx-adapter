@@ -1,10 +1,10 @@
 {
-  "db_name": "PostgreSQL",
+  "db_name": "SQLite",
   "query": "CREATE TABLE IF NOT EXISTS casbin_rule (\n                    id SERIAL PRIMARY KEY,\n                    ptype VARCHAR NOT NULL,\n                    v0 VARCHAR NOT NULL,\n                    v1 VARCHAR NOT NULL,\n                    v2 VARCHAR NOT NULL,\n                    v3 VARCHAR NOT NULL,\n                    v4 VARCHAR NOT NULL,\n                    v5 VARCHAR NOT NULL,\n                    CONSTRAINT unique_key_sqlx_adapter UNIQUE(ptype, v0, v1, v2, v3, v4, v5)\n                    );\n        ",
   "describe": {
     "columns": [],
     "parameters": {
-      "Left": []
+      "Right": 0
     },
     "nullable": []
   },

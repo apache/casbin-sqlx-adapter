@@ -21,3 +21,6 @@ Cargo.lock
 *.db
 *.db-wal
 *.db-shm
+
+/.direnv/
+/result*
