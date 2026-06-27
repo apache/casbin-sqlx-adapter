@@ -10,7 +10,7 @@ readme= "README.md"
 
 [dependencies]
 casbin = { version = "2.1.0", default-features = false }
-sqlx = { version = "0.8", default-features = false, features = [ "macros" ] }
+sqlx = { version = "0.9", default-features = false, features = [ "macros" ] }
 async-trait = "0.1.51"
 dotenvy = { version = "0.15.0", default-features = false }
 tokio = { version = "1.10.0", default-features = false, optional = true }
