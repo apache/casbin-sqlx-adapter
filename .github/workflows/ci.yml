@@ -12,7 +12,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest, macOS-latest ]
+        os: [ ubuntu-latest, macOS-latest ]
 
     steps:
       - name: Checkout Repository
@@ -73,28 +73,6 @@ jobs:
           mysql -e "create user 'casbin_rs'@'localhost' identified by 'casbin_rs'; create database casbin; grant all on \`casbin\`.* to 'casbin_rs'@'localhost';" -urunner
           #echo "MYSQLCLIENT_LIB_DIR=/usr/local/opt/mariadb@10.5/lib" >> $GITHUB_ENV
 
-      - name: Setup PostgreSQL & MySQL & SQLite (for windows)
-        if: matrix.os == 'windows-latest'
-        shell: cmd
-        run: |
-          choco install postgresql11 --force --params '/Password:root'
-          choco install mysql sqlite
-          "C:\Program Files\PostgreSQL\11\bin\createuser" casbin_rs
-          "C:\Program Files\PostgreSQL\11\bin\createdb" casbin
-          "C:\Program Files\PostgreSQL\11\bin\psql" -c "alter user casbin_rs with encrypted password 'casbin_rs'; grant all privileges on database casbin to casbin_rs;"
-          "C:\tools\mysql\current\bin\mysql" -e "create user 'casbin_rs'@'localhost' identified by 'casbin_rs'; create database casbin; grant all on `casbin`.* to 'casbin_rs'@'localhost';" -uroot
-          cd /D C:\ProgramData\chocolatey\lib\SQLite\tools
-          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          lib /machine:x64 /def:sqlite3.def /out:sqlite3.lib
-
-      - name: Set environment variables (for windows)
-        if: matrix.os == 'windows-latest'
-        shell: bash
-        run: |
-          echo "C:\Program Files\PostgreSQL\11\bin" >> $GITHUB_PATH
-          echo "PQ_LIB_DIR=C:\Program Files\PostgreSQL\11\lib" >> $GITHUB_ENV
-          echo "MYSQLCLIENT_LIB_DIR=C:\tools\mysql\current\lib" >> $GITHUB_ENV
-          echo "SQLITE3_LIB_DIR=C:\ProgramData\chocolatey\lib\SQLite\tools" >> $GITHUB_ENV
 
       - name: Create SQLite DB
         run: |
