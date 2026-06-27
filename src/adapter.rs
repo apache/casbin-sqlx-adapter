@@ -555,7 +555,7 @@ mod tests {
             .await
             .unwrap());
 
-        // GitHub issue: https://github.com/casbin-rs/sqlx-adapter/issues/64
+        // GitHub issue: https://github.com/apache/casbin-sqlx-adapter/issues/64
         assert!(adapter
             .add_policy("", "g", to_owned(vec!["carol", "data1_admin"]),)
             .await
@@ -566,7 +566,7 @@ mod tests {
             .unwrap());
         assert_eq!(vec![String::new(); 0], e.get_roles_for_user("carol", None));
 
-        // GitHub issue: https://github.com/casbin-rs/sqlx-adapter/pull/90
+        // GitHub issue: https://github.com/apache/casbin-sqlx-adapter/pull/90
         // add policies:
         // p, alice_rfp, book_rfp, read_rfp
         // p, bob_rfp, book_rfp, read_rfp

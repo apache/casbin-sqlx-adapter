@@ -2,10 +2,10 @@
 
 [![Crates.io](https://img.shields.io/crates/v/sqlx-adapter.svg)](https://crates.io/crates/sqlx-adapter)
 [![Docs](https://docs.rs/sqlx-adapter/badge.svg)](https://docs.rs/sqlx-adapter)
-[![CI](https://github.com/casbin-rs/sqlx-adapter/actions/workflows/ci.yml/badge.svg)](https://github.com/casbin-rs/sqlx-adapter/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/casbin-rs/sqlx-adapter/branch/master/graph/badge.svg)](https://codecov.io/gh/casbin-rs/sqlx-adapter)
+[![CI](https://github.com/apache/casbin-sqlx-adapter/actions/workflows/ci.yml/badge.svg)](https://github.com/apache/casbin-sqlx-adapter/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/apache/casbin-sqlx-adapter/branch/master/graph/badge.svg)](https://codecov.io/gh/apache/casbin-sqlx-adapter)
 
-sqlx-adapter is the [Sqlx](https://github.com/launchbadge/sqlx) adapter for [casbin-rs](https://github.com/casbin/casbin-rs). With this library, Casbin can load policy from Sqlx supported database or save policy to it with fully asynchronous support.
+sqlx-adapter is the [Sqlx](https://github.com/launchbadge/sqlx) adapter for [casbin-rs](https://github.com/apache/casbin-rs). With this library, Casbin can load policy from Sqlx supported database or save policy to it with fully asynchronous support.
 
 Based on [Sqlx](https://github.com/launchbadge/sqlx), The current supported databases are:
 
