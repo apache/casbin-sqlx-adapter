@@ -1,6 +1,5 @@
 use async_trait::async_trait;
 use casbin::{error::AdapterError, Adapter, Error as CasbinError, Filter, Model, Result};
-use dotenvy::dotenv;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
@@ -27,8 +26,6 @@ pub struct SqlxAdapter {
 
 impl<'a> SqlxAdapter {
     pub async fn new<U: Into<String>>(url: U, pool_size: u32) -> Result<Self> {
-        dotenv().ok();
-
         #[cfg(feature = "postgres")]
         let pool = PgPoolOptions::new()
             .max_connections(pool_size)
@@ -275,17 +272,21 @@ mod tests {
         v.into_iter().map(|x| x.to_owned()).collect()
     }
 
-    #[cfg_attr(
-        any(
-            feature = "runtime-async-std-native-tls",
-            feature = "runtime-async-std-rustls"
-        ),
-        async_std::test
-    )]
-    #[cfg_attr(
-        any(feature = "runtime-tokio-native-tls", feature = "runtime-tokio-rustls"),
-        tokio::test(flavor = "multi_thread")
-    )]
+    fn test_database_url() -> String {
+        #[cfg(feature = "postgres")]
+        let default_url = "postgres://casbin_rs:casbin_rs@localhost:5432/casbin";
+
+        #[cfg(feature = "mysql")]
+        let default_url = "mysql://casbin_rs:casbin_rs@localhost:3306/casbin";
+
+        #[cfg(feature = "sqlite")]
+        let default_url = "sqlite:casbin.db";
+
+        std::env::var("DATABASE_URL").unwrap_or_else(|_| default_url.to_owned())
+    }
+
+    #[cfg_attr(feature = "runtime-async-std", async_std::test)]
+    #[cfg_attr(feature = "runtime-tokio", tokio::test(flavor = "multi_thread"))]
     async fn test_create() {
         use casbin::prelude::*;
 
@@ -296,38 +297,25 @@ mod tests {
         let adapter = {
             #[cfg(feature = "postgres")]
             {
-                SqlxAdapter::new("postgres://casbin_rs:casbin_rs@localhost:5432/casbin", 8)
-                    .await
-                    .unwrap()
+                SqlxAdapter::new(test_database_url(), 8).await.unwrap()
             }
 
             #[cfg(feature = "mysql")]
             {
-                SqlxAdapter::new("mysql://casbin_rs:casbin_rs@localhost:3306/casbin", 8)
-                    .await
-                    .unwrap()
+                SqlxAdapter::new(test_database_url(), 8).await.unwrap()
             }
 
             #[cfg(feature = "sqlite")]
             {
-                SqlxAdapter::new("sqlite:casbin.db", 8).await.unwrap()
+                SqlxAdapter::new(test_database_url(), 8).await.unwrap()
             }
         };
 
         assert!(Enforcer::new(m, adapter).await.is_ok());
     }
 
-    #[cfg_attr(
-        any(
-            feature = "runtime-async-std-native-tls",
-            feature = "runtime-async-std-rustls"
-        ),
-        async_std::test
-    )]
-    #[cfg_attr(
-        any(feature = "runtime-tokio-native-tls", feature = "runtime-tokio-rustls"),
-        tokio::test(flavor = "multi_thread")
-    )]
+    #[cfg_attr(feature = "runtime-async-std", async_std::test)]
+    #[cfg_attr(feature = "runtime-tokio", tokio::test(flavor = "multi_thread"))]
     async fn test_create_with_pool() {
         use casbin::prelude::*;
 
@@ -337,27 +325,30 @@ mod tests {
         let pool = {
             #[cfg(feature = "postgres")]
             {
+                let url = test_database_url();
                 PgPoolOptions::new()
                     .max_connections(8)
-                    .connect("postgres://casbin_rs:casbin_rs@localhost:5432/casbin")
+                    .connect(&url)
                     .await
                     .unwrap()
             }
 
             #[cfg(feature = "mysql")]
             {
+                let url = test_database_url();
                 MySqlPoolOptions::new()
                     .max_connections(8)
-                    .connect("mysql://casbin_rs:casbin_rs@localhost:3306/casbin")
+                    .connect(&url)
                     .await
                     .unwrap()
             }
 
             #[cfg(feature = "sqlite")]
             {
+                let url = test_database_url();
                 SqlitePoolOptions::new()
                     .max_connections(8)
-                    .connect("sqlite:casbin.db")
+                    .connect(&url)
                     .await
                     .unwrap()
             }
@@ -368,17 +359,8 @@ mod tests {
         assert!(Enforcer::new(m, adapter).await.is_ok());
     }
 
-    #[cfg_attr(
-        any(
-            feature = "runtime-async-std-native-tls",
-            feature = "runtime-async-std-rustls"
-        ),
-        async_std::test
-    )]
-    #[cfg_attr(
-        any(feature = "runtime-tokio-native-tls", feature = "runtime-tokio-rustls"),
-        tokio::test(flavor = "multi_thread")
-    )]
+    #[cfg_attr(feature = "runtime-async-std", async_std::test)]
+    #[cfg_attr(feature = "runtime-tokio", tokio::test(flavor = "multi_thread"))]
     async fn test_adapter() {
         use casbin::prelude::*;
 
@@ -389,28 +371,46 @@ mod tests {
             .unwrap();
 
         let mut e = Enforcer::new(m, file_adapter).await.unwrap();
+        #[cfg(feature = "postgres")]
+        let postgres_pool = {
+            let url = test_database_url();
+            PgPoolOptions::new()
+                .max_connections(8)
+                .connect(&url)
+                .await
+                .unwrap()
+        };
         let mut adapter = {
             #[cfg(feature = "postgres")]
             {
-                SqlxAdapter::new("postgres://casbin_rs:casbin_rs@localhost:5432/casbin", 8)
+                SqlxAdapter::new_with_pool(postgres_pool.clone())
                     .await
                     .unwrap()
             }
 
             #[cfg(feature = "mysql")]
             {
-                SqlxAdapter::new("mysql://casbin_rs:casbin_rs@localhost:3306/casbin", 8)
-                    .await
-                    .unwrap()
+                SqlxAdapter::new(test_database_url(), 8).await.unwrap()
             }
 
             #[cfg(feature = "sqlite")]
             {
-                SqlxAdapter::new("sqlite:casbin.db", 8).await.unwrap()
+                SqlxAdapter::new(test_database_url(), 8).await.unwrap()
             }
         };
 
         assert!(adapter.save_policy(e.get_mut_model()).await.is_ok());
+
+        #[cfg(feature = "postgres")]
+        {
+            let model = DefaultModel::from_file("examples/rbac_model.conf")
+                .await
+                .unwrap();
+            let reloaded_adapter = SqlxAdapter::new_with_pool(postgres_pool).await.unwrap();
+            let reloaded = Enforcer::new(model, reloaded_adapter).await.unwrap();
+
+            assert!(reloaded.enforce(("alice", "data1", "read")).unwrap());
+        }
 
         assert!(adapter
             .remove_policy("", "p", to_owned(vec!["alice", "data1", "read"]))
@@ -564,7 +564,7 @@ mod tests {
             .remove_filtered_policy("", "g", 0, to_owned(vec!["carol"]),)
             .await
             .unwrap());
-        assert_eq!(vec![String::new(); 0], e.get_roles_for_user("carol", None));
+        assert_eq!(Vec::<String>::new(), e.get_roles_for_user("carol", None));
 
         // GitHub issue: https://github.com/apache/casbin-sqlx-adapter/pull/90
         // add policies:

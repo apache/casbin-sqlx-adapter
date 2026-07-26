@@ -29,21 +29,21 @@ Add the following to `Cargo.toml`:
 For MySQL:
 
 ```toml
-sqlx-adapter = { version = "1.8.0", default-features = false, features = ["mysql", "runtime-tokio-native-tls"]}
+sqlx-adapter = { version = "1.8.0", default-features = false, features = ["mysql", "runtime-tokio", "tls-native-tls"]}
 tokio = { version = "1.1.1", features = ["macros"] }
 ```
 
 For PostgreSQL:
 
 ```toml
-sqlx-adapter = { version = "1.8.0", default-features = false, features = ["postgres", "runtime-tokio-native-tls"]}
+sqlx-adapter = { version = "1.8.0", default-features = false, features = ["postgres", "runtime-tokio", "tls-native-tls"]}
 tokio = { version = "1.1.1", features = ["macros"] }
 ```
 
 For SQLite:
 
 ```toml
-sqlx-adapter = { version = "1.8.0", default-features = false, features = ["sqlite", "runtime-tokio-native-tls"]}
+sqlx-adapter = { version = "1.8.0", default-features = false, features = ["sqlite", "runtime-tokio", "tls-native-tls"]}
 tokio = { version = "1.1.1", features = ["macros"] }
 ```
 
@@ -198,5 +198,16 @@ async fn main() -> Result<()> {
 - `postgres`
 - `mysql`
 - `sqlite`
+- `runtime-tokio`
+- `runtime-async-std`
+- `tls-native-tls`
+- `tls-rustls`
+
+The legacy combined runtime/TLS features remain available as backward-compatible aliases:
+
+- `runtime-tokio-native-tls`
+- `runtime-tokio-rustls`
+- `runtime-async-std-native-tls`
+- `runtime-async-std-rustls`
 
 *Attention*: `postgres`, `mysql`, `sqlite` are mutual exclusive which means that you can only activate one of them.
