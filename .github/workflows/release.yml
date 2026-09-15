@@ -69,6 +69,8 @@ jobs:
           else
             echo "SQLx Adapter $VERSION. Source files are the verified originals promoted to ASF distribution after the applicable votes." > release-notes.md
           fi
+          printf '\n' >> release-notes.md
+          cat DISCLAIMER >> release-notes.md
       - name: Create GitHub release without replacing existing assets
         env:
           GH_TOKEN: ${{ github.token }}

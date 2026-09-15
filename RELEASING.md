@@ -77,3 +77,19 @@ Repeat tests for PostgreSQL and MySQL with their own test
 `DATABASE_URL`, and for the supported Tokio/async-std and native-tls/rustls
 feature combinations. The CI workflow records the full matrix. Keep the
 original archive intact and test a disposable extraction.
+
+
+## Distribution review
+
+This preparation preserves the existing `sqlx-adapter` on crates.io coordinates and the
+selected package version for consumer compatibility; the ASF source archive
+name includes `incubating`. Before an RC, record the project's disposition of
+the Incubator distribution naming guidance and any required exception. This
+compatibility choice is not evidence of IPMC approval or registry ownership.
+
+Review the incubation disclaimer in the README, package metadata where
+applicable, and generated GitHub notes. Before publication, verify the ASF
+download/verification links and that project maintainers can administer each
+registry. Track Git tag, ASF dev/release, signing/KEYS, and registry permissions
+separately. Keep actual decisions and provenance evidence with the release
+record, outside the source distribution; header text is not proof of a grant.
