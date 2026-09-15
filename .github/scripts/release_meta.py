@@ -1,0 +1,37 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+"""Validate a release tag against the version already committed in source."""
+import os
+import re
+from verify_release import manifest_version
+
+def metadata(tag):
+    match = re.fullmatch(r'v([0-9]+\.[0-9]+\.[0-9]+)(-rc[1-9][0-9]*)?', tag)
+    if not match:
+        raise ValueError('Expected vX.Y.Z or vX.Y.Z-rcN')
+    version = match[1]
+    if manifest_version() != version:
+        raise ValueError('Commit the selected release version before tagging')
+    return {'version': version, 'is_rc': str(bool(match[2])).lower(),
+            'basename': 'apache-casbin-sqlx-adapter-' + version + '-incubating-src'}
+
+if __name__ == '__main__':
+    values = metadata(os.environ['GITHUB_REF_NAME'])
+    with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+        for key, value in values.items():
+            output.write(key + '=' + value + '\n')

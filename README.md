@@ -1,3 +1,17 @@
+<!--
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
 # sqlx-adapter
 
 [![Crates.io](https://img.shields.io/crates/v/sqlx-adapter.svg)](https://crates.io/crates/sqlx-adapter)
@@ -24,26 +38,30 @@ ALTER TABLE casbin_rules RENAME TO casbin_rule;
 
 ## Install
 
+Building the SQLx 0.9 source requires Rust 1.94 or newer. Compile each database
+driver separately; database integration tests additionally require that
+database to be running and `DATABASE_URL` to be configured.
+
 Add the following to `Cargo.toml`:
 
 For MySQL:
 
 ```toml
-sqlx-adapter = { version = "1.8.0", default-features = false, features = ["mysql", "runtime-tokio", "tls-native-tls"]}
+sqlx-adapter = { version = "1.9.0", default-features = false, features = ["mysql", "runtime-tokio", "tls-native-tls"]}
 tokio = { version = "1.1.1", features = ["macros"] }
 ```
 
 For PostgreSQL:
 
 ```toml
-sqlx-adapter = { version = "1.8.0", default-features = false, features = ["postgres", "runtime-tokio", "tls-native-tls"]}
+sqlx-adapter = { version = "1.9.0", default-features = false, features = ["postgres", "runtime-tokio", "tls-native-tls"]}
 tokio = { version = "1.1.1", features = ["macros"] }
 ```
 
 For SQLite:
 
 ```toml
-sqlx-adapter = { version = "1.8.0", default-features = false, features = ["sqlite", "runtime-tokio", "tls-native-tls"]}
+sqlx-adapter = { version = "1.9.0", default-features = false, features = ["sqlite", "runtime-tokio", "tls-native-tls"]}
 tokio = { version = "1.1.1", features = ["macros"] }
 ```
 

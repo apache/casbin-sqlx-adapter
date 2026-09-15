@@ -10,22 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: 2
-updates:
-- package-ecosystem: cargo
-  directory: "/"
-  schedule:
-    interval: daily
-    time: "13:00"
-  open-pull-requests-limit: 10
-  ignore:
-  - dependency-name: actix-rt
-    versions:
-    - 2.0.0
-  - dependency-name: casbin
-    versions:
-    - 2.0.6
-  - dependency-name: tokio
-    versions:
-    - 1.1.0
-    - 1.1.1
+# Exact-path exceptions for source-archive RAT review. No source-code globs.
+# Small declarative policy fixture; kept unchanged for adapter tests.
+examples/rbac_policy.csv
+# Small declarative policy fixture; kept unchanged for adapter tests.
+examples/rbac_with_domains_policy.csv
