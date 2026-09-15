@@ -63,9 +63,9 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get upgrade
           sudo apt-get install -y libpq-dev postgresql libmysqlclient-dev mysql-client libsqlite3-dev sqlite3
-          echo "host    all             all             127.0.0.1/32            md5" > sudo tee -a /etc/postgresql/10/main/pg_hba.conf
+          # Use the runner's local PostgreSQL configuration. Do not write to
+          # a hard-coded cluster version or create files in the source tree.
           sudo service postgresql restart && sleep 3
           sudo -u postgres createuser casbin_rs
           sudo -u postgres createdb casbin
