@@ -1,8 +1,32 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
 name: Release
 
-# Releases are NOT automatic. A release manager pushes a git tag manually:
-#   * v1.4.0-rc1  -> publishes a GitHub *pre-release* only (artifact for the Apache vote)
-#   * v1.4.0      -> publishes a GitHub *release* and pushes the crate to crates.io
+# Releases are cut by hand by pushing a tag. The version lives only in the
+# tag; Cargo.toml keeps the 0.0.0 placeholder. See RELEASING.md.
+#
+#   vX.Y.Z-rcN  ->  builds the source tarball for the Apache vote and attaches
+#                   it to a GitHub pre-release. Nothing is signed or published.
+#   vX.Y.Z      ->  downloads the voted tarball from the ASF release area,
+#                   checks its signature/checksum and that it matches this
+#                   tag, then creates the GitHub release and publishes the
+#                   crate to crates.io from the very same sources.
+
 on:
   push:
     tags:
@@ -11,98 +35,98 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   release:
-    name: Manual Tag Release
+    name: Release ${{ github.ref_name }}
+    if: github.repository == 'apache/casbin-sqlx-adapter'
     runs-on: ubuntu-latest
-
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      is_rc: ${{ steps.meta.outputs.is_rc }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Resolve Tag
-        id: tag
+      - name: Resolve version from tag
+        id: meta
+        run: .github/scripts/release.sh meta "$GITHUB_REF_NAME"
+
+      - name: Build source tarball for the vote
+        if: steps.meta.outputs.is_rc == 'true'
+        run: .github/scripts/release.sh archive "${{ steps.meta.outputs.version }}" "$RUNNER_TEMP/dist"
+
+      - name: Fetch and verify the voted tarball from the ASF release area
+        if: steps.meta.outputs.is_rc == 'false'
+        run: .github/scripts/release.sh verify "${{ steps.meta.outputs.version }}" "$RUNNER_TEMP/dist"
+
+      - name: Write release notes
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
+          BASENAME: ${{ steps.meta.outputs.basename }}
+          IS_RC: ${{ steps.meta.outputs.is_rc }}
         run: |
           set -euo pipefail
-          TAG="${GITHUB_REF_NAME}"
-          VERSION="${TAG#v}"
+          NOTES="$RUNNER_TEMP/notes.md"
+          if [ "$IS_RC" = true ]; then
+            cat >"$NOTES" <<EOF
+          Release candidate for sqlx-adapter $VERSION. **This is not an Apache release**; it is the source tarball for the Apache vote.
 
-          if [[ "$VERSION" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-[Rr][Cc]([0-9]+)$ ]]; then
-            BASE_VERSION="${BASH_REMATCH[1]}"
-            RC_NUMBER="${BASH_REMATCH[2]}"
-            IS_RC=true
-          elif [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            BASE_VERSION="$VERSION"
-            RC_NUMBER=""
-            IS_RC=false
+          Release manager: download \`$BASENAME.tar.gz\` and its \`.sha512\`, sign the tarball with your key from the Casbin KEYS file, stage all three files under \`dist/dev/incubator/casbin/\`, and start the vote. See RELEASING.md.
+          EOF
           else
-            echo "::error::Tag '$TAG' is not a supported release tag (expected vX.Y.Z or vX.Y.Z-rcN)."
-            exit 1
+            cat >"$NOTES" <<EOF
+          sqlx-adapter $VERSION.
+
+          The attached files are the voted source release, byte for byte as published at https://downloads.apache.org/incubator/casbin/sqlx-adapter-$VERSION-incubating/ (verify with https://www.apache.org/info/verification.html). The crate on crates.io is built from these sources.
+          EOF
           fi
+          printf '\n---\n\n' >>"$NOTES"
+          cat DISCLAIMER >>"$NOTES"
 
-          CARGO_VERSION="$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -n 1)"
-          if [[ "$CARGO_VERSION" != "$BASE_VERSION" ]]; then
-            echo "::error::Cargo.toml version ($CARGO_VERSION) does not match tag version ($BASE_VERSION). Bump Cargo.toml before tagging."
-            exit 1
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          IS_RC: ${{ steps.meta.outputs.is_rc }}
+        run: |
+          set -euo pipefail
+          FLAGS=(--verify-tag --title "$TAG" --notes-file "$RUNNER_TEMP/notes.md")
+          if [ "$IS_RC" = true ]; then
+            FLAGS+=(--prerelease --latest=false)
           fi
+          # gh refuses to create a release that already exists, so a re-run can
+          # never silently replace published assets.
+          gh release create "$TAG" "$RUNNER_TEMP"/dist/* "${FLAGS[@]}"
 
-          # Apache source release artifact naming. The RC number is intentionally
-          # NOT part of the file name, so the bits that get voted on are byte
-          # identical to the bits published for the final release.
-          ARTIFACT="apache-casbin-sqlx-adapter-${BASE_VERSION}-incubating-src.tar.gz"
+  publish:
+    name: Publish to crates.io
+    needs: release
+    if: needs.release.outputs.is_rc == 'false'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-          {
-            echo "tag=$TAG"
-            echo "base_version=$BASE_VERSION"
-            echo "rc_number=$RC_NUMBER"
-            echo "is_rc=$IS_RC"
-            echo "artifact=$ARTIFACT"
-          } >> "$GITHUB_OUTPUT"
+      # Independent of the job above: the crate must come from the voted
+      # sources, checked again right before the publish token is used.
+      - name: Verify the voted tarball matches this tag
+        run: .github/scripts/release.sh verify "${{ needs.release.outputs.version }}" "$RUNNER_TEMP/dist"
 
-      - name: Build Apache Source Package
-        run: |
-          set -euo pipefail
-          ARTIFACT="${{ steps.tag.outputs.artifact }}"
-          # The tarball unpacks into a single top level directory named after the
-          # artifact, and contains sources only - no binaries, no VCS metadata.
-          git archive --format=tar.gz \
-            --prefix="${ARTIFACT%.tar.gz}/" \
-            -o "$ARTIFACT" HEAD
-          sha512sum "$ARTIFACT" > "$ARTIFACT.sha512"
-
-      - name: Publish GitHub Pre-Release
-        if: steps.tag.outputs.is_rc == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          ARTIFACT="${{ steps.tag.outputs.artifact }}"
-          gh release create "${{ steps.tag.outputs.tag }}" \
-            --title "v${{ steps.tag.outputs.base_version }}-rc${{ steps.tag.outputs.rc_number }}" \
-            --prerelease \
-            --notes "Release candidate ${{ steps.tag.outputs.rc_number }} for version ${{ steps.tag.outputs.base_version }}. This is not an official release; it is the source package for the Apache vote. Release managers should download \`$ARTIFACT\`, sign it locally, and use it for the vote." \
-            "$ARTIFACT" "$ARTIFACT.sha512"
-
-      - name: Publish GitHub Release
-        if: steps.tag.outputs.is_rc == 'false'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          ARTIFACT="${{ steps.tag.outputs.artifact }}"
-          gh release create "${{ steps.tag.outputs.tag }}" \
-            --title "v${{ steps.tag.outputs.base_version }}" \
-            --notes "Version ${{ steps.tag.outputs.base_version }}. The official source package is \`$ARTIFACT\`." \
-            "$ARTIFACT" "$ARTIFACT.sha512"
+      - name: Write the version into Cargo.toml
+        run: .github/scripts/release.sh set-version "${{ needs.release.outputs.version }}"
 
       - name: Install Rust toolchain
-        if: steps.tag.outputs.is_rc == 'false'
-        run: |
-          rustup update stable
-          rustup default stable
+        run: rustup update stable --no-self-update && rustup default stable
 
-      - name: Publish To crates.io
-        if: steps.tag.outputs.is_rc == 'false'
+      - name: Publish crate
         env:
-          SQLX_OFFLINE: true
-        run: cargo publish --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        # --allow-dirty: the only uncommitted change is the version written
+        # into Cargo.toml by the step above.
+        run: cargo publish --allow-dirty
