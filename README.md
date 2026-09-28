@@ -17,18 +17,18 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-# sqlx-adapter
+# Apache Casbin SQLx Adapter (Incubating)
 
 Apache Casbin (Incubating) is an effort undergoing incubation at the Apache Software Foundation (ASF), sponsored by the Apache Incubator PMC. Incubation is required of all newly accepted projects until a further review indicates that the infrastructure, communications, and decision making process have stabilized in a manner consistent with other successful ASF projects. While incubation status is not necessarily a reflection of the completeness or stability of the code, it does indicate that the project has yet to be fully endorsed by the ASF.
 
-[![Crates.io](https://img.shields.io/crates/v/sqlx-adapter.svg)](https://crates.io/crates/sqlx-adapter)
-[![Docs](https://docs.rs/sqlx-adapter/badge.svg)](https://docs.rs/sqlx-adapter)
+[![Crates.io](https://img.shields.io/crates/v/casbin-sqlx-adapter.svg)](https://crates.io/crates/casbin-sqlx-adapter)
+[![Docs](https://docs.rs/casbin-sqlx-adapter/badge.svg)](https://docs.rs/casbin-sqlx-adapter)
 [![CI](https://github.com/apache/casbin-sqlx-adapter/actions/workflows/ci.yml/badge.svg)](https://github.com/apache/casbin-sqlx-adapter/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/apache/casbin-sqlx-adapter/branch/master/graph/badge.svg)](https://codecov.io/gh/apache/casbin-sqlx-adapter)
 
-sqlx-adapter is the [Sqlx](https://github.com/launchbadge/sqlx) adapter for [casbin-rs](https://github.com/apache/casbin-rs). With this library, Casbin can load policy from Sqlx supported database or save policy to it with fully asynchronous support.
+casbin-sqlx-adapter is the [SQLx](https://github.com/launchbadge/sqlx) adapter for [casbin-rs](https://github.com/apache/casbin-rs). With this library, Casbin can load policy from a SQLx-supported database or save policy to it with fully asynchronous support.
 
-Based on [Sqlx](https://github.com/launchbadge/sqlx), The current supported databases are:
+Based on [SQLx](https://github.com/launchbadge/sqlx), the current supported databases are:
 
 - [MySQL](https://www.mysql.com/)
 - [PostgreSQL](https://github.com/lib/pq)
@@ -54,23 +54,31 @@ Add the following to `Cargo.toml`:
 For MySQL:
 
 ```toml
-sqlx-adapter = { version = "1", default-features = false, features = ["mysql", "runtime-tokio", "tls-native-tls"]}
+casbin-sqlx-adapter = { version = "1.9", default-features = false, features = ["mysql", "runtime-tokio", "tls-native-tls"]}
 tokio = { version = "1.1.1", features = ["macros"] }
 ```
 
 For PostgreSQL:
 
 ```toml
-sqlx-adapter = { version = "1", default-features = false, features = ["postgres", "runtime-tokio", "tls-native-tls"]}
+casbin-sqlx-adapter = { version = "1.9", default-features = false, features = ["postgres", "runtime-tokio", "tls-native-tls"]}
 tokio = { version = "1.1.1", features = ["macros"] }
 ```
 
 For SQLite:
 
 ```toml
-sqlx-adapter = { version = "1", default-features = false, features = ["sqlite", "runtime-tokio", "tls-native-tls"]}
+casbin-sqlx-adapter = { version = "1.9", default-features = false, features = ["sqlite", "runtime-tokio", "tls-native-tls"]}
 tokio = { version = "1.1.1", features = ["macros"] }
 ```
+
+Starting with 1.9.0, the registry package name changes from `sqlx-adapter` to
+`casbin-sqlx-adapter`. Replace the dependency key in Cargo.toml as shown above.
+The library name remains `sqlx_adapter`, so existing Rust imports and the
+`SqlxAdapter` type do not change. Existing versions of `sqlx-adapter` remain
+available. Release candidates are for review and are not published to crates.io;
+the new package and documentation links become available after release approval
+and publication.
 
 **Warning**: `tokio v1.0` or later is supported from `sqlx-adapter v0.4.0`, we recommend that you upgrade the relevant components to ensure that they work properly. The last version that supports `tokio v0.2` is `sqlx-adapter v0.3.0` , you can choose according to your needs.
 

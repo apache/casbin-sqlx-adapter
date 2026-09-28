@@ -58,7 +58,7 @@ commit() {
 # --- fixture repository ----------------------------------------------------
 mkdir repo && cd repo
 git init -q
-printf '[package]\nname = "sqlx-adapter"\nversion = "0.0.0"\nedition = "2018"\n' >Cargo.toml
+printf '[package]\nname = "casbin-sqlx-adapter"\nversion = "0.0.0"\nedition = "2018"\n' >Cargo.toml
 echo 'fixture' >LICENSE
 git add . && commit 'fixture'
 
