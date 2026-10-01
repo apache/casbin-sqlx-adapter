@@ -31,6 +31,14 @@ built from exactly those bytes.
 
 ## 1. Release candidate
 
+Starting with 1.9.0, the crate is named `casbin-sqlx-adapter`; the library target
+remains `sqlx_adapter` to preserve Rust imports. Confirm the package name with
+the project and ensure its crates.io publishing account can administer the new
+crate. An unused name is not a reservation or proof of project control. Check
+the packaged manifest, README installation examples and docs.rs links together.
+Do not publish an unapproved candidate merely to reserve the name. The ASF
+source archive prefix and distribution directory naming remain unchanged.
+
 Pick the commit to release (CI green on `master`) and push an RC tag:
 
 ```bash

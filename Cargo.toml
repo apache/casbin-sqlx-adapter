@@ -16,7 +16,7 @@
 # under the License.
 
 [package]
-name = "sqlx-adapter"
+name = "casbin-sqlx-adapter"
 # Placeholder on purpose. The release workflow derives the real version from
 # the git tag (vX.Y.Z -> X.Y.Z) and substitutes it when it builds the source
 # archive and publishes the crate, so nothing in the tree has to be bumped.
@@ -35,6 +35,10 @@ readme = "README.md"
 # Keep SQLite databases left behind by the test suite out of the crate, also
 # when packaging from an extracted source archive where .gitignore does not apply.
 exclude = ["*.db", "*.db-wal", "*.db-shm"]
+
+[lib]
+# Preserve existing Rust imports when changing the registry package name.
+name = "sqlx_adapter"
 
 [dependencies]
 casbin = { version = "2.1.0", default-features = false }
